@@ -156,7 +156,7 @@ variable "backend_restapi_private_ip" {
 
 variable "backend_restapi_instance_name" {
   default = "henry-backend-restapi"
-}
+  }
 
 variable "backend_restapi_instance_type" {
   default = "t2.micro"
@@ -171,22 +171,20 @@ variable "backend_restapi_count" {
 }
 
 # Database instance
-variable "backend_database_private_ip" {
-  default = "10.0.1.10"
-}
+variable "backend_database" {
+  type = object({
+    name       = string,
+    type       = string,
+    ami        = string,
+    private_ip = string,
+    count      = number
+  })
 
-variable "backend_database_instance_name" {
-  default = "henry-backend-database"
-}
-
-variable "backend_database_instance_type" {
-  default = "t2.micro"
-}
-
-variable "backend_database_instance_ami" {
-  default = "ami-0817d428a6fb68645"
-}
-
-variable "backend_database_count" {
-  default = 1
+  default = {
+    name       = "henry-backend-database"
+    type       = "t2.micro"
+    ami        = "ami-0817d428a6fb68645"
+    private_ip = "10.0.1.10",
+    count      = 1
+  }
 }
