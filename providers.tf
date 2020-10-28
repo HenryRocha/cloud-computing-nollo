@@ -1,3 +1,5 @@
+# Declaring all the providers used for this project.
+# To specify which region to use, edit 'providers.tfvars'.
 provider "aws" {
   alias      = "region_01"
   region     = var.region_01

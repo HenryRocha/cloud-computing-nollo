@@ -1,29 +1,24 @@
-resource "aws_network_interface" "backend_database_nic" {
-  provider        = aws.region_01
-  subnet_id       = aws_subnet.backend_private_subnet.id
-  private_ips     = [var.backend_database_private_ip]
-  security_groups = [aws_security_group.backend_database_sg.id]
-
-  tags = {
-    Name = "henry-backend-database-nic"
+module "backend_database" {
+  source = "terraform-aws-modules/ec2-instance/aws"
+  providers = {
+    aws = aws.region_01
   }
-}
 
-resource "aws_instance" "backend_database" {
-  provider      = aws.region_01
-  count         = var.backend_database_count
-  ami           = var.backend_database_instance_ami
-  instance_type = var.backend_database_instance_type
-  key_name      = aws_key_pair.henryrocha_legionY740_manjaro_kp.key_name
+  depends_on     = [module.backend_database_sg, data.aws_ami.ubuntu18]
+  instance_count = 1
 
-  network_interface {
-    device_index         = 0
-    network_interface_id = aws_network_interface.backend_database_nic.id
-  }
+  name                        = "backend-database"
+  ami                         = data.aws_ami.ubuntu18.id
+  instance_type               = "t2.micro"
+  subnet_id                   = module.backend_vpc.private_subnets[0]
+  private_ips                 = ["10.0.1.5"]
+  vpc_security_group_ids      = [module.backend_database_sg.this_security_group_id]
+  associate_public_ip_address = false
 
   user_data = file("./install_docker.sh")
 
   tags = {
-    Name = var.backend_database_instance_name
+    "Owner" = "henryrocha"
+    "Name"  = "backend-database"
   }
 }
