@@ -1,6 +1,12 @@
-# VPC variables
-variable "backend_vpc_name" {
-  default = "henry-backend-vpc"
+# VPC variables.
+variable "backend_vpc" {
+  type = object({ name = string, cidr = string, gateway_name = string })
+
+  default = {
+    name         = "henry-backend-vpc"
+    cidr         = "10.0.0.0/16"
+    gateway_name = "henry-backend-vpc-gateway"
+}
 }
 
 variable "backend_vpc_cidr" {
