@@ -38,7 +38,7 @@ variable "backend_private_subnet" {
     cidr              = string,
     route_table_name  = string,
     nat_gw_name       = string,
-    nat_gw_eip_name   = string,
+    nat_gw_eip_name   = string
   })
 
   default = {
@@ -52,20 +52,101 @@ variable "backend_private_subnet" {
 }
 
 # Security groups
-variable "backend_restapi_sg_name" {
-  default = "backend-restapi-sg"
+variable "backend_restapi_sg" {
+  type = object({
+    name        = string,
+    description = string,
+    ingress_list = map(object({
+      description = string,
+      cidr_blocks = list(string),
+      protocol    = string
+    })),
+    egress_list = map(object({
+      description = string,
+      cidr_blocks = list(string),
+      protocol    = string
+    }))
+  })
+
+  default = {
+    name        = "henry-backend-restAPI-sg"
+    description = "RestAPI default security group."
+    ingress_list = {
+      22 = {
+        description = "Allow SSH",
+        cidr_blocks = ["0.0.0.0/0"]
+        protocol    = "tcp"
+      }
+      80 = {
+        description = "Allow HTTP",
+        cidr_blocks = ["0.0.0.0/0"]
+        protocol    = "tcp"
+      }
+      81 = {
+        description = "Allow NPM Dashboard",
+        cidr_blocks = ["0.0.0.0/0"]
+        protocol    = "tcp"
+      }
+      443 = {
+        description = "Allow HTTPS",
+        cidr_blocks = ["0.0.0.0/0"]
+        protocol    = "tcp"
+      }
+    }
+    egress_list = {
+      0 = {
+        description = "Allow all outgoing traffic.",
+        cidr_blocks = ["0.0.0.0/0"]
+        protocol    = "-1"
+      }
+    }
+  }
 }
 
-variable "backend_restapi_sg_description" {
-  default = "Allow HTTP, HTTPS, SSH and all outgoing."
-}
+variable "backend_database_sg" {
+  type = object({
+    name        = string,
+    description = string,
+    ingress_list = map(object({
+      description = string,
+      cidr_blocks = list(string),
+      protocol    = string
+    })),
+    egress_list = map(object({
+      description = string,
+      cidr_blocks = list(string),
+      protocol    = string
+    }))
+  })
 
-variable "backend_database_sg_name" {
-  default = "backend-default-sg"
-}
-
-variable "backend_database_sg_description" {
-  default = "Allow HTTP, HTTPS, SSH only from VPC and all outgoing."
+  default = {
+    name        = "henry-backend-database-sg"
+    description = "Database default security group."
+    ingress_list = {
+      22 = {
+        description = "Allow SSH",
+        cidr_blocks = ["10.0.0.0/16"]
+        protocol    = "tcp"
+      }
+      80 = {
+        description = "Allow HTTP",
+        cidr_blocks = ["10.0.0.0/16"]
+        protocol    = "tcp"
+      }
+      443 = {
+        description = "Allow HTTPS",
+        cidr_blocks = ["10.0.0.0/16"]
+        protocol    = "tcp"
+      }
+    }
+    egress_list = {
+      0 = {
+        description = "Allow all outgoing traffic.",
+        cidr_blocks = ["0.0.0.0/0"]
+        protocol    = "-1"
+      }
+    }
+  }
 }
 
 # RestAPI instance
