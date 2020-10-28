@@ -1,3 +1,4 @@
+# Main file, configures the necessary providers.
 terraform {
   required_providers {
     aws = {
