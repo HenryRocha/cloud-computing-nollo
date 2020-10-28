@@ -14,7 +14,7 @@ resource "aws_subnet" "backend_private_subnet" {
 resource "aws_nat_gateway" "backend_private_subnet_nat_gw" {
   provider      = aws.region_01
   allocation_id = aws_eip.backend_private_subnet_gw_eip.id
-  subnet_id     = aws_subnet.backend_public_subnet.id
+  subnet_id     = aws_subnet.backend_public_subnet[0].id
 
   tags = {
     Name = var.backend_private_subnet.nat_gw_name

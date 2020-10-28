@@ -16,17 +16,19 @@ variable "backend_vpc" {
 # Public Subnet variables.
 variable "backend_public_subnet" {
   type = object({
-    subnet_name       = string,
-    availability_zone = string,
-    cidr              = string,
-    route_table_name  = string
+    subnet_name        = list(string),
+    availability_zones = list(string),
+    cidr               = list(string),
+    route_table_name   = string,
+    count              = number
   })
 
   default = {
-    subnet_name       = "henry-backend-public-subnet"
-    availability_zone = "us-east-1a"
-    cidr              = "10.0.0.0/24"
-    route_table_name  = "henry-backend-public-route-table"
+    subnet_name        = ["henry-backend-public-subnet-01", "henry-backend-public-subnet-02"]
+    availability_zones = ["us-east-1a", "us-east-1b"]
+    cidr               = ["10.0.0.0/24", "10.0.4.0/24"]
+    route_table_name   = "henry-backend-public-route-table",
+    count              = 2
   }
 }
 
@@ -150,24 +152,34 @@ variable "backend_database_sg" {
 }
 
 # RestAPI instance
-variable "backend_restapi_private_ip" {
-  default = "10.0.0.10"
-}
+variable "backend_restapi" {
+  type = object({
+    name = string,
+    type = string,
+    ami  = string
+  })
 
-variable "backend_restapi_instance_name" {
-  default = "henry-backend-restapi"
+  default = {
+    name = "henry-backend-restapi"
+    type = "t2.micro"
+    ami  = "ami-0817d428a6fb68645"
   }
-
-variable "backend_restapi_instance_type" {
-  default = "t2.micro"
 }
 
-variable "backend_restapi_instance_ami" {
-  default = "ami-0817d428a6fb68645"
-}
+variable "backend_restapi_elb" {
+  type = object({
+    name    = string,
+    tg_name = string,
+    type    = string,
+    ami     = string
+  })
 
-variable "backend_restapi_count" {
-  default = 1
+  default = {
+    name    = "henry-backend-restapi-elb"
+    tg_name = "henry-backend-restapi-elb-tg"
+    type    = "t2.micro"
+    ami     = "ami-0817d428a6fb68645"
+  }
 }
 
 # Database instance

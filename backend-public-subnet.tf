@@ -1,12 +1,13 @@
 # Create a public subnet, which will have access to the internet.
 resource "aws_subnet" "backend_public_subnet" {
   provider          = aws.region_01
+  count             = var.backend_public_subnet.count
   vpc_id            = aws_vpc.backend_vpc.id
-  cidr_block        = var.backend_public_subnet.cidr
-  availability_zone = var.backend_public_subnet.availability_zone
+  cidr_block        = var.backend_public_subnet.cidr[count.index]
+  availability_zone = var.backend_public_subnet.availability_zones[count.index]
 
   tags = {
-    Name = var.backend_public_subnet.subnet_name
+    Name = var.backend_public_subnet.subnet_name[count.index]
   }
 }
 
@@ -33,6 +34,7 @@ resource "aws_route_table" "backend_public_route_table" {
 # Associate the public route table with the public subnet.
 resource "aws_route_table_association" "backend_public_route_table_association" {
   provider       = aws.region_01
-  subnet_id      = aws_subnet.backend_public_subnet.id
+  count          = var.backend_public_subnet.count
+  subnet_id      = aws_subnet.backend_public_subnet[count.index].id
   route_table_id = aws_route_table.backend_public_route_table.id
 }
