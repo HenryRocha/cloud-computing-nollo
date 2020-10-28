@@ -1,21 +1,37 @@
-# Create a VPC in which the backend and database will reside.
-resource "aws_vpc" "backend_vpc" {
-  provider             = aws.region_01
-  cidr_block           = var.backend_vpc.cidr
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-
-  tags = {
-    Name = var.backend_vpc.name
+module "backend_vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  providers = {
+    aws = aws.region_01
   }
-}
 
-# Create an internet gateway for the VPC, so it can access the internet.
-resource "aws_internet_gateway" "backend_vpc_gateway" {
-  provider = aws.region_01
-  vpc_id   = aws_vpc.backend_vpc.id
+  name            = "backend-vpc"
+  cidr            = "10.0.0.0/16"
+  azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+  enable_ipv6 = true
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  public_subnet_tags = {
+    Owner = "henryrocha"
+    Name  = "backend-public"
+  }
+
+  private_subnet_tags = {
+    Owner = "henryrocha"
+    Name  = "backend-private"
+  }
 
   tags = {
-    Name = var.backend_vpc.gateway_name
+    Owner = "henryrocha"
+    Name  = "backend-vpc-component"
+  }
+
+  vpc_tags = {
+    Owner = "henryrocha"
+    Name  = "backend-vpc"
   }
 }
