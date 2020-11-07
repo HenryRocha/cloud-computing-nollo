@@ -60,7 +60,7 @@ module "backend_restAPI_asg" {
   health_check_type         = "EC2"
   min_size                  = 1
   max_size                  = 3
-  desired_capacity          = 2
+  desired_capacity          = null
   wait_for_capacity_timeout = 0
 
   tags = [
