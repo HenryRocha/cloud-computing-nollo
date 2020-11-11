@@ -103,7 +103,7 @@ module "backend_restAPI_elb" {
   ]
 
   health_check = {
-    target              = "HTTP:80/"
+    target              = "HTTP:80/api/v1/ping"
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 5
