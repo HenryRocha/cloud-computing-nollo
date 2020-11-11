@@ -11,3 +11,4 @@ services:
             - 80:3306
         volumes:
             - ./db-files:/var/lib/mysql
+            - ./scripts:/docker-entrypoint-initdb.d
