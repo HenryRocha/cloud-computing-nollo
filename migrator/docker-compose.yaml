@@ -11,4 +11,3 @@ services:
             - 80:3306
         volumes:
             - ./db-files:/var/lib/mysql
-            - .:/home/megadados
