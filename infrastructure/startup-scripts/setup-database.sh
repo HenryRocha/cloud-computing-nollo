@@ -6,7 +6,11 @@ sudo sh get-docker.sh
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
-# Download the MySQL database Docker Compose file
-wget https://raw.githubusercontent.com/HenryRocha/cloud-computing-nollo/main/migrator/docker-compose.yaml
+# Install Git
+sudo apt install git -y
+
+# Clone the repo
+git clone https://github.com/HenryRocha/cloud-computing-nollo.git
+cd cloud-computing-nollo/migrator/
 
 sudo docker-compose up -d
