@@ -1,0 +1,14 @@
+version: "3.1"
+
+services:
+    mysql:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: "mysqlpwlol"
+        ports:
+            - 80:3306
+        volumes:
+            - ./db-files:/var/lib/mysql
+            - .:/home/megadados
