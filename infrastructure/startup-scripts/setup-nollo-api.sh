@@ -13,5 +13,5 @@ sudo apt install git -y
 git clone https://github.com/HenryRocha/cloud-computing-nollo.git
 cd cloud-computing-nollo/nollo-api/
 
-docker build -t nollo-api .
-docker run -it --rm -p 80:8001 --name run-nollo-api nollo-api
+sudo docker build -t nollo-api .
+sudo docker run -it --rm -d -p 80:8001 --name run-nollo-api nollo-api
