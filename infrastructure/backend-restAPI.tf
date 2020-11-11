@@ -31,7 +31,7 @@ resource "aws_launch_configuration" "backend_restAPI_lc" {
   security_groups = [module.backend_restAPI_sg.this_security_group_id]
   key_name        = aws_key_pair.henryrocha_legionY740_manjaro_kp.key_name
 
-  user_data = file("./startup-scripts/install_docker.sh")
+  user_data = file("./startup-scripts/setup-nollo-api.sh")
 
   lifecycle {
     create_before_destroy = true
