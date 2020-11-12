@@ -15,7 +15,7 @@ module "backend_database" {
   vpc_security_group_ids      = [module.backend_database_sg.this_security_group_id]
   associate_public_ip_address = false
 
-  user_data = file("./startup-scripts/setup-database.sh")
+  user_data = data.template_file.db_user_data.rendered
 
   tags = {
     "Owner" = "henryrocha"

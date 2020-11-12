@@ -14,4 +14,4 @@ git clone https://github.com/HenryRocha/cloud-computing-nollo.git
 cd cloud-computing-nollo/nollo-api/
 
 sudo docker build -t nollo-api .
-sudo docker run -it --rm -d -p 80:8001 --name run-nollo-api nollo-api
+sudo docker run -it --rm -d -p 80:8001 -e DB_DSN="${NOLLO_API_DSN}" --name run-nollo-api nollo-api

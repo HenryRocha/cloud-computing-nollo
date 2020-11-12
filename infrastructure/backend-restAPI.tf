@@ -31,7 +31,7 @@ resource "aws_launch_configuration" "backend_restAPI_lc" {
   security_groups = [module.backend_restAPI_sg.this_security_group_id]
   key_name        = aws_key_pair.henryrocha_legionY740_manjaro_kp.key_name
 
-  user_data = file("./startup-scripts/setup-nollo-api.sh")
+  user_data = data.template_file.nollo_api_user_data.rendered
 
   lifecycle {
     create_before_destroy = true
@@ -114,4 +114,8 @@ module "backend_restAPI_elb" {
     Owner = "henryrocha"
     Name  = "backend-restAPI-elb"
   }
+}
+
+output "restAPI_elb_dns_name" {
+  value = module.backend_restAPI_elb.this_elb_dns_name
 }
