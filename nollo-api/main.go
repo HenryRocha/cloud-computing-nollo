@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/henryrocha/nollo/database"
 	"github.com/henryrocha/nollo/routes"
 	"gorm.io/driver/mysql"
@@ -11,7 +14,7 @@ import (
 )
 
 func initDatabaseConnection() {
-	var dsn string = "nollo_api:nollo_api_pw@tcp(10.0.1.5:80)/nollo_dev?charset=utf8mb4&parseTime=True&loc=Local"
+	var dsn string = os.Getenv("DB_DSN")
 	var err error
 
 	database.DBConn, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -37,6 +40,8 @@ func setupRoutes(app *fiber.App) {
 
 func main() {
 	app := fiber.New()
+	app.Use(cors.New())
+	app.Use(logger.New())
 	initDatabaseConnection()
 	setupRoutes(app)
 	app.Listen(":8001")
