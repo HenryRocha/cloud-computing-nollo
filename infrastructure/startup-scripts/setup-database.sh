@@ -37,11 +37,12 @@ CREATE USER nollo_api@"%" IDENTIFIED BY "${NOLLO_DB_API_PW}";
 GRANT SELECT, INSERT, UPDATE, DELETE ON nollo_prod.* TO nollo_api@"%";
 GRANT SELECT, INSERT, UPDATE, DELETE ON nollo_dev.* TO nollo_api@"%";
 
-COMMIT
+COMMIT;
 
-DROP TABLE IF EXISTS nollo_dev.todos;
+USE nollo_dev;
+DROP TABLE IF EXISTS todos;
 
-CREATE TABLE nollo_dev.todos (
+CREATE TABLE todos (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     title VARCHAR(50) NOT NULL,
     description VARCHAR(120),
@@ -49,8 +50,10 @@ CREATE TABLE nollo_dev.todos (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO nollo_dev.todos VALUES (1, "Harcoded Todo 1", "This todo was created with the database.", "1999-01-01 06:30:00");
-INSERT INTO nollo_dev.todos VALUES (2, "Harcoded Todo 2", "This todo was created with the database.", "2000-04-14 06:30:00");
+INSERT INTO todos VALUES (1, "Harcoded Todo 1", "This todo was created with the database.", "1999-01-01 06:30:00");
+INSERT INTO todos VALUES (2, "Harcoded Todo 2", "This todo was created with the database.", "2000-04-14 06:30:00");
+
+COMMIT;
 EOF
 
 # Create the Docker container and run it.
