@@ -3,9 +3,10 @@
 
 	let todos = getTodos();
 	let newTodo = {};
+	console.log(`Backend URL is: ${API_URL}`)
 
 	async function getTodos() {
-		const res = await fetch(`${API_URL}/api/v1/todos/`, {
+		const res = await fetch(`${API_URL}/api/v1/todos`, {
 			method: "GET",
 		});
 
