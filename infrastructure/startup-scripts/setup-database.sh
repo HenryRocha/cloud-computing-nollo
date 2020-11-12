@@ -14,7 +14,7 @@ cd /home/ubuntu
 
 # Clone the repo
 git clone https://github.com/HenryRocha/cloud-computing-nollo.git
-cd cloud-computing-nollo/migrator/
+cd cloud-computing-nollo/database/
 
 # Create the scripts folder.
 mkdir scripts
