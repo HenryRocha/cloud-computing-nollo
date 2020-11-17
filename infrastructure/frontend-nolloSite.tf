@@ -1,21 +1,69 @@
 #===================================================================================
-# Data sources to get Ubuntu 18.04 AMI for each zone
+# Template file and User Data for Nollo API
 #===================================================================================
-data "aws_ami" "ubuntu18_region_02" {
-  provider    = aws.region_02
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+data "template_file" "nollo_site_user_data" {
+  template = file("./startup-scripts/setup-nollo-site.sh")
+  vars = {
+    NOLLO_API_LB_DNS = module.backend_restAPI_elb.this_elb_dns_name
   }
+}
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+output "nollo_site_script" {
+  value = data.template_file.nollo_site_user_data.rendered
+}
+
+#===================================================================================
+# Autoscaling group security group
+#===================================================================================
+module "frontend_nolloSite_sg" {
+  source = "terraform-aws-modules/security-group/aws"
+  providers = {
+    aws = aws.region_02
   }
+  depends_on = [module.frontend_vpc]
 
-  owners = ["099720109477"] # Canonical
+  name        = "frontend-nolloSite-sg"
+  description = "Default nolloSite security group."
+  vpc_id      = module.frontend_vpc.vpc_id
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      description = "Allow SSH"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      description = "Allow HTTP"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      description = "Allow HTTPS"
+      cidr_blocks = "0.0.0.0/0"
+    },
+  ]
+
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      description = "Allow all outgoing traffic"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+
+  tags = {
+    Owner = "henryrocha"
+    Name  = "frontend-nolloSite-sg-component"
+  }
 }
 
 #===================================================================================
@@ -75,6 +123,71 @@ module "frontend_nolloSite_asg" {
       propagate_at_launch = true
     },
   ]
+}
+
+#===================================================================================
+# Scaling Policies for the Autoscaling Group
+#===================================================================================
+# Scale up settings.
+resource "aws_autoscaling_policy" "nolloSite_up" {
+  provider               = aws.region_02
+  depends_on             = [module.frontend_nolloSite_asg]
+  name                   = "nolloSite_up"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 120
+  autoscaling_group_name = module.frontend_nolloSite_asg.this_autoscaling_group_name
+}
+
+resource "aws_cloudwatch_metric_alarm" "nolloSite_cpu_alarm_up" {
+  provider            = aws.region_02
+  depends_on          = [module.frontend_nolloSite_asg, aws_autoscaling_policy.nolloSite_up]
+  alarm_name          = "nolloSite_cpu_alarm_up"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "50"
+
+  dimensions = {
+    AutoScalingGroupName = module.frontend_nolloSite_asg.this_autoscaling_group_name
+  }
+
+  alarm_description = "This metric monitor EC2 instance CPU utilization"
+  alarm_actions     = [aws_autoscaling_policy.nolloSite_up.arn]
+}
+
+# Scale down settings.
+resource "aws_autoscaling_policy" "nolloSite_down" {
+  provider               = aws.region_02
+  depends_on             = [module.frontend_nolloSite_asg]
+  name                   = "nolloSite_down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 120
+  autoscaling_group_name = module.frontend_nolloSite_asg.this_autoscaling_group_name
+}
+
+resource "aws_cloudwatch_metric_alarm" "nolloSite_cpu_alarm_down" {
+  provider            = aws.region_02
+  depends_on          = [module.frontend_nolloSite_asg, aws_autoscaling_policy.nolloSite_down]
+  alarm_name          = "nolloSite_cpu_alarm_down"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "10"
+
+  dimensions = {
+    AutoScalingGroupName = module.frontend_nolloSite_asg.this_autoscaling_group_name
+  }
+
+  alarm_description = "This metric monitor EC2 instance CPU utilization"
+  alarm_actions     = [aws_autoscaling_policy.nolloSite_down.arn]
 }
 
 #===================================================================================

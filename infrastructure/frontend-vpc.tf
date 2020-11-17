@@ -1,3 +1,27 @@
+#===================================================================================
+# Data sources to get Ubuntu 18.04 AMI for region 02.
+#===================================================================================
+data "aws_ami" "ubuntu18_region_02" {
+  provider    = aws.region_02
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+#===================================================================================
+# Creating the frontend VPC. Uses 3 availability zones, 3 private subnets
+# 3 public subnets
+#===================================================================================
 module "frontend_vpc" {
   source = "terraform-aws-modules/vpc/aws"
   providers = {
