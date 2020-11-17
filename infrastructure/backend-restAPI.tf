@@ -52,6 +52,13 @@ module "backend_restAPI_sg" {
       description = "Allow HTTPS"
       cidr_blocks = "0.0.0.0/0"
     },
+    {
+      from_port   = 8
+      to_port     = 0
+      protocol    = "icmp"
+      description = "Allow Ping from anywhere"
+      cidr_blocks = "0.0.0.0/0"
+    },
   ]
 
   egress_with_cidr_blocks = [
