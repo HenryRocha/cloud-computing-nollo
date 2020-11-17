@@ -1,7 +1,7 @@
 #===================================================================================
 # Data source to get Ubuntu 18.04 AMI for region 01.
 #===================================================================================
-data "aws_ami" "ubuntu18_region01" {
+data "aws_ami" "ubuntu18_region_01" {
   provider    = aws.region_01
   most_recent = true
 

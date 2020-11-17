@@ -92,11 +92,11 @@ module "backend_database" {
     aws = aws.region_01
   }
 
-  depends_on     = [module.backend_database_sg, data.aws_ami.ubuntu18_region01]
+  depends_on     = [module.backend_database_sg, data.aws_ami.ubuntu18_region_01]
   instance_count = 1
 
   name                        = "backend-database"
-  ami                         = data.aws_ami.ubuntu18_region01.id
+  ami                         = data.aws_ami.ubuntu18_region_01.id
   instance_type               = "t2.micro"
   subnet_id                   = module.backend_vpc.private_subnets[0]
   private_ips                 = ["10.0.1.5"]

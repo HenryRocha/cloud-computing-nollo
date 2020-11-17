@@ -83,10 +83,10 @@ module "backend_restAPI_sg" {
 #===================================================================================
 resource "aws_launch_configuration" "backend_restAPI_lc" {
   provider   = aws.region_01
-  depends_on = [module.backend_restAPI_sg, data.aws_ami.ubuntu18_region01]
+  depends_on = [module.backend_restAPI_sg, data.aws_ami.ubuntu18_region_01]
 
   name_prefix     = "backend-restAPI-lc-"
-  image_id        = data.aws_ami.ubuntu18_region01.id
+  image_id        = data.aws_ami.ubuntu18_region_01.id
   instance_type   = "t2.micro"
   security_groups = [module.backend_restAPI_sg.this_security_group_id]
   key_name        = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_01.key_name
@@ -106,7 +106,7 @@ module "backend_restAPI_asg" {
   providers = {
     aws = aws.region_01
   }
-  depends_on = [module.backend_vpc, module.backend_restAPI_sg, module.backend_restAPI_elb, data.aws_ami.ubuntu18_region01]
+  depends_on = [module.backend_vpc, module.backend_restAPI_sg, module.backend_restAPI_elb, data.aws_ami.ubuntu18_region_01]
 
   name = "backend-restAPI-asg"
 
