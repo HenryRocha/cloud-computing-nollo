@@ -1,6 +1,4 @@
-# Declaring the secret variables. Do not place their real value here,
-# instead, create a 'secrets.tfvars' file and append all Terraform
-# commands with '-var-file=./secrets.tfvars'.
+# Declaring the secret variables. Do not place their real value here.
 variable "AWS_ACCESS_KEY_ID" {
   default = "placeholder"
 }

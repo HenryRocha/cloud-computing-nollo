@@ -1,21 +1,69 @@
 #===================================================================================
-# Data sources to get Ubuntu 18.04 AMI for each zone
+# Template file and User Data for Nollo API
 #===================================================================================
-data "aws_ami" "ubuntu18" {
-  provider    = aws.region_01
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+data "template_file" "nollo_api_user_data" {
+  template = file("./startup-scripts/setup-nollo-api.sh")
+  vars = {
+    NOLLO_API_DSN = var.NOLLO_API_DSN
   }
+}
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+output "nollo_api_script" {
+  value = data.template_file.nollo_api_user_data.rendered
+}
+
+#===================================================================================
+# Autoscaling group security group
+#===================================================================================
+module "backend_restAPI_sg" {
+  source = "terraform-aws-modules/security-group/aws"
+  providers = {
+    aws = aws.region_01
   }
+  depends_on = [module.backend_vpc]
 
-  owners = ["099720109477"] # Canonical
+  name        = "backend-restAPI-sg"
+  description = "Default restAPI security group."
+  vpc_id      = module.backend_vpc.vpc_id
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      description = "Allow SSH"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      description = "Allow HTTP"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      description = "Allow HTTPS"
+      cidr_blocks = "0.0.0.0/0"
+    },
+  ]
+
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      description = "Allow all outgoing traffic"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+
+  tags = {
+    Owner = "henryrocha"
+    Name  = "backend-restAPI-sg-component"
+  }
 }
 
 #===================================================================================
@@ -23,13 +71,13 @@ data "aws_ami" "ubuntu18" {
 #===================================================================================
 resource "aws_launch_configuration" "backend_restAPI_lc" {
   provider   = aws.region_01
-  depends_on = [module.backend_restAPI_sg, data.aws_ami.ubuntu18]
+  depends_on = [module.backend_restAPI_sg, data.aws_ami.ubuntu18_region01]
 
   name_prefix     = "backend-restAPI-lc-"
-  image_id        = data.aws_ami.ubuntu18.id
+  image_id        = data.aws_ami.ubuntu18_region01.id
   instance_type   = "t2.micro"
   security_groups = [module.backend_restAPI_sg.this_security_group_id]
-  key_name        = aws_key_pair.henryrocha_legionY740_manjaro_kp.key_name
+  key_name        = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_01.key_name
 
   user_data = data.template_file.nollo_api_user_data.rendered
 
@@ -43,7 +91,7 @@ module "backend_restAPI_asg" {
   providers = {
     aws = aws.region_01
   }
-  depends_on = [module.backend_vpc, module.backend_restAPI_sg, module.backend_restAPI_elb, data.aws_ami.ubuntu18]
+  depends_on = [module.backend_vpc, module.backend_restAPI_sg, module.backend_restAPI_elb, data.aws_ami.ubuntu18_region01]
 
   name = "backend-restAPI-asg"
 
@@ -75,6 +123,71 @@ module "backend_restAPI_asg" {
       propagate_at_launch = true
     },
   ]
+}
+
+#===================================================================================
+# Scaling Policies for the Autoscaling Group
+#===================================================================================
+# Scale up settings.
+resource "aws_autoscaling_policy" "restAPI_up" {
+  provider               = aws.region_01
+  depends_on             = [module.backend_restAPI_asg]
+  name                   = "restAPI_up"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 120
+  autoscaling_group_name = module.backend_restAPI_asg.this_autoscaling_group_name
+}
+
+resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_up" {
+  provider            = aws.region_01
+  depends_on          = [module.backend_restAPI_asg, aws_autoscaling_policy.restAPI_up]
+  alarm_name          = "restAPI_cpu_alarm_up"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "50"
+
+  dimensions = {
+    AutoScalingGroupName = module.backend_restAPI_asg.this_autoscaling_group_name
+  }
+
+  alarm_description = "This metric monitor EC2 instance CPU utilization"
+  alarm_actions     = [aws_autoscaling_policy.restAPI_up.arn]
+}
+
+# Scale down settings.
+resource "aws_autoscaling_policy" "restAPI_down" {
+  provider               = aws.region_01
+  depends_on             = [module.backend_restAPI_asg]
+  name                   = "restAPI_down"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  cooldown               = 120
+  autoscaling_group_name = module.backend_restAPI_asg.this_autoscaling_group_name
+}
+
+resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_down" {
+  provider            = aws.region_01
+  depends_on          = [module.backend_restAPI_asg, aws_autoscaling_policy.restAPI_down]
+  alarm_name          = "restAPI_cpu_alarm_down"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "10"
+
+  dimensions = {
+    AutoScalingGroupName = module.backend_restAPI_asg.this_autoscaling_group_name
+  }
+
+  alarm_description = "This metric monitor EC2 instance CPU utilization"
+  alarm_actions     = [aws_autoscaling_policy.restAPI_down.arn]
 }
 
 #===================================================================================

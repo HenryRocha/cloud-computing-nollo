@@ -1,5 +1,11 @@
-# Declaring all the providers used for this project.
-# To specify which region to use, edit 'providers.tfvars'.
+variable "region_01" {
+  default = "us-east-1"
+}
+
+variable "region_02" {
+  default = "us-east-2"
+}
+
 provider "aws" {
   alias      = "region_01"
   region     = var.region_01
