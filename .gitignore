@@ -1,7 +1,0 @@
-# Ignore Terraform files
-.terraform*
-terraform.tfstate
-terraform.tfstate.backup
-
-# Ignore Terraform secret variables
-secrets.tfvars
