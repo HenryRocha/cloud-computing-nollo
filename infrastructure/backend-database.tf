@@ -1,4 +1,9 @@
+#===================================================================================
+# Template file and User Data for Nollo DB.
+#===================================================================================
 data "template_file" "db_user_data" {
+  # Uses the "setup-database.sh" script as a base, while passing
+  # variables to it.
   template = file("./startup-scripts/setup-database.sh")
   vars = {
     NOLLO_DB_ROOT_PW  = var.NOLLO_DB_ROOT_PW
@@ -8,9 +13,14 @@ data "template_file" "db_user_data" {
 }
 
 output "db_user_data_script" {
+  # Outputs the complete user data.
   value = data.template_file.db_user_data.rendered
 }
 
+#===================================================================================
+# The default security group for Nollo DB. This is the security group used by
+# the database instance.
+#===================================================================================
 module "backend_database_sg" {
   source = "terraform-aws-modules/security-group/aws"
   providers = {
@@ -21,6 +31,16 @@ module "backend_database_sg" {
   name        = "backend-database-sg"
   description = "Default database security group."
   vpc_id      = module.backend_vpc.vpc_id
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 8
+      to_port     = 0
+      protocol    = "icmp"
+      description = "Allow Ping from within VPC"
+      cidr_blocks = "10.0.0.0/16"
+    },
+  ]
 
   computed_ingress_with_cidr_blocks = [
     {
@@ -63,6 +83,9 @@ module "backend_database_sg" {
   }
 }
 
+#===================================================================================
+# Nollo DB instance configuration.
+#===================================================================================
 module "backend_database" {
   source = "terraform-aws-modules/ec2-instance/aws"
   providers = {
