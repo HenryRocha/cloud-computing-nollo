@@ -1,7 +1,9 @@
 #===================================================================================
-# Template file and User Data for Nollo API
+# Template file and User Data for Nollo API.
 #===================================================================================
 data "template_file" "nollo_api_user_data" {
+  # Uses the "setup-nollo-api.sh" script as a base, while passing
+  # variables to it.
   template = file("./startup-scripts/setup-nollo-api.sh")
   vars = {
     NOLLO_API_DSN = var.NOLLO_API_DSN
@@ -9,11 +11,13 @@ data "template_file" "nollo_api_user_data" {
 }
 
 output "nollo_api_script" {
+  # Outputs the complete user data.
   value = data.template_file.nollo_api_user_data.rendered
 }
 
 #===================================================================================
-# Autoscaling group security group
+# The default security group for Nollo API. This is the security group used by
+# every instance created by the autoscaling group.
 #===================================================================================
 module "backend_restAPI_sg" {
   source = "terraform-aws-modules/security-group/aws"
@@ -67,7 +71,8 @@ module "backend_restAPI_sg" {
 }
 
 #===================================================================================
-# Launch configuration and autoscaling group
+# Nollo API launch configuration. This is how the instances inside the autoscaling
+# group will be based on.
 #===================================================================================
 resource "aws_launch_configuration" "backend_restAPI_lc" {
   provider   = aws.region_01
@@ -86,6 +91,9 @@ resource "aws_launch_configuration" "backend_restAPI_lc" {
   }
 }
 
+#===================================================================================
+# Nollo API autoscaling group.
+#===================================================================================
 module "backend_restAPI_asg" {
   source = "terraform-aws-modules/autoscaling/aws"
   providers = {
@@ -126,10 +134,10 @@ module "backend_restAPI_asg" {
 }
 
 #===================================================================================
-# Scaling Policies for the Autoscaling Group
+# Scaling Policies for the autoscaling group.
 #===================================================================================
-# Scale up settings.
 resource "aws_autoscaling_policy" "restAPI_up" {
+  # Scale up settings. This policy creates an addional instance.
   provider               = aws.region_01
   depends_on             = [module.backend_restAPI_asg]
   name                   = "restAPI_up"
@@ -140,6 +148,8 @@ resource "aws_autoscaling_policy" "restAPI_up" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_up" {
+  # Cloudwatch Alarm. Sets off an alarm when an instance's CPU stays at or above
+  # 50% load for at least 120 seconds.
   provider            = aws.region_01
   depends_on          = [module.backend_restAPI_asg, aws_autoscaling_policy.restAPI_up]
   alarm_name          = "restAPI_cpu_alarm_up"
@@ -159,8 +169,8 @@ resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_up" {
   alarm_actions     = [aws_autoscaling_policy.restAPI_up.arn]
 }
 
-# Scale down settings.
 resource "aws_autoscaling_policy" "restAPI_down" {
+  # Scale down settings. This policy deletes one instance.
   provider               = aws.region_01
   depends_on             = [module.backend_restAPI_asg]
   name                   = "restAPI_down"
@@ -171,6 +181,8 @@ resource "aws_autoscaling_policy" "restAPI_down" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_down" {
+  # Cloudwatch Alarm. Sets off an alarm when an instance's CPU stays below 10%
+  # load for at least 120 seconds.
   provider            = aws.region_01
   depends_on          = [module.backend_restAPI_asg, aws_autoscaling_policy.restAPI_down]
   alarm_name          = "restAPI_cpu_alarm_down"

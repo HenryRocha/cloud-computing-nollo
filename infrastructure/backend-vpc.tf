@@ -1,5 +1,5 @@
 #===================================================================================
-# Data sources to get Ubuntu 18.04 AMI for region 01.
+# Data source to get Ubuntu 18.04 AMI for region 01.
 #===================================================================================
 data "aws_ami" "ubuntu18_region01" {
   provider    = aws.region_01
@@ -20,7 +20,8 @@ data "aws_ami" "ubuntu18_region01" {
 
 #===================================================================================
 # Creating the backend VPC. Uses 3 availability zones, 3 private subnets
-# 3 public subnets
+# 3 public subnets. Creates only one NAT Gateway, to provide internet connection
+# to all private subnets.
 #===================================================================================
 module "backend_vpc" {
   source = "terraform-aws-modules/vpc/aws"
