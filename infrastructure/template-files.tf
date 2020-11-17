@@ -1,6 +1,7 @@
 data "template_file" "db_user_data" {
   template = file("./startup-scripts/setup-database.sh")
   vars = {
+    NOLLO_DB_ROOT_PW  = var.NOLLO_DB_ROOT_PW
     NOLLO_DB_ADMIN_PW = var.NOLLO_DB_ADMIN_PW
     NOLLO_DB_API_PW   = var.NOLLO_DB_API_PW
   }

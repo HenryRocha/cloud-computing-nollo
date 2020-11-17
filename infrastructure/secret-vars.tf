@@ -9,6 +9,11 @@ variable "AWS_SECRET_ACCESS_KEY" {
   default = "placeholder"
 }
 
+variable "NOLLO_DB_ROOT_PW" {
+  type    = string
+  default = "placeholder"
+}
+
 variable "NOLLO_DB_ADMIN_PW" {
   type    = string
   default = "placeholder"

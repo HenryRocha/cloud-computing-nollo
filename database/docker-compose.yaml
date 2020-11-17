@@ -6,7 +6,7 @@ services:
         command: --default-authentication-plugin=mysql_native_password
         restart: always
         environment:
-            MYSQL_ROOT_PASSWORD: "mysqlpwlol"
+            MYSQL_ROOT_PASSWORD: "NOLLO_DB_ROOT_PW_PLACEHOLDER"
         ports:
             - 80:3306
         volumes:
