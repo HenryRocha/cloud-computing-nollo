@@ -26,3 +26,13 @@ variable "NOLLO_API_DSN" {
   type    = string
   default = "placeholder"
 }
+
+variable "WG_BK_SERVER_PVK" {
+  type    = string
+  default = "placeholder"
+}
+
+variable "WG_BK_ADMIN_PBK" {
+  type    = string
+  default = "placeholder"
+}
