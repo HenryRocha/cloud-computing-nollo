@@ -3,6 +3,7 @@
 **terraform.tfstate**
 **terraform.tfstate.backup**
 **terraform.tfvars**
+**terraform.auto.tfvars**
 
 # Ignore Wireguard's private and public keys
 **_privatekey**
