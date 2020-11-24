@@ -19,11 +19,11 @@ SaveConfig = true
 PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 ListenPort = 51820
-PrivateKey = ${WG_BK_SERVER_PVK}
+PrivateKey = ${WG_BE_SERVER_PVK}
 
 [Peer]
-PublicKey = ${WG_BK_ADMIN_PBK}
-AllowedIPs = 10.0.150.29/32
+PublicKey = ${WG_FE_SERVER_PBK}
+AllowedIPs = 10.0.150.45/32, 20.0.101.0/24, 20.0.102.0/24, 20.0.103.0/24
 EOF
 
 # Enable Wireguard.

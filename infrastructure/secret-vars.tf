@@ -27,12 +27,27 @@ variable "NOLLO_API_DSN" {
   default = "placeholder"
 }
 
-variable "WG_BK_SERVER_PVK" {
+variable "WG_BE_SERVER_PVK" {
   type    = string
   default = "placeholder"
 }
 
-variable "WG_BK_ADMIN_PBK" {
+variable "WG_BE_SERVER_PBK" {
+  type    = string
+  default = "placeholder"
+}
+
+variable "WG_FE_SERVER_PVK" {
+  type    = string
+  default = "placeholder"
+}
+
+variable "WG_FE_SERVER_PBK" {
+  type    = string
+  default = "placeholder"
+}
+
+variable "WG_BE_SERVER_IP" {
   type    = string
   default = "placeholder"
 }
