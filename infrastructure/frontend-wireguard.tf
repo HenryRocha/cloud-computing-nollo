@@ -102,7 +102,6 @@ module "frontend_wireguard" {
   ami                         = data.aws_ami.ubuntu18_region_02.id
   instance_type               = "t2.micro"
   subnet_id                   = module.frontend_vpc.public_subnets[0]
-  private_ips                 = ["10.20.101.18"]
   vpc_security_group_ids      = [module.frontend_wireguard_sg.this_security_group_id]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_02.key_name
