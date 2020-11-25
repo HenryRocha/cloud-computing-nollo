@@ -211,7 +211,6 @@ printf "\nDone\n"
 
 printf "Creating new infrastructure...."
 
-cd ./infrastructure
 terraform apply --auto-approve
 
 printf "\nDone\n"
