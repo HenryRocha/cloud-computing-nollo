@@ -119,7 +119,7 @@ module "backend_restAPI_asg" {
 
   # Auto scaling group
   asg_name                  = "backend-restAPI-asg"
-  vpc_zone_identifier       = module.backend_vpc.public_subnets
+  vpc_zone_identifier       = module.backend_vpc.private_subnets
   health_check_type         = "EC2"
   min_size                  = 1
   max_size                  = 3
