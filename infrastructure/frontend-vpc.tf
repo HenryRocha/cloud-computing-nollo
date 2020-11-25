@@ -72,7 +72,7 @@ module "frontend_vpc" {
 # Add a new route to the public subnets route table. It should point to the
 # wireguard instance. This is needed to provide a end-to-end IP location.
 #===================================================================================
-data "aws_route_table" "frontend_route_tables" {
+data "aws_route_table" "frontend_public_route_table" {
   provider   = aws.region_02
   depends_on = [module.frontend_vpc]
   vpc_id     = module.frontend_vpc.vpc_id
@@ -83,10 +83,10 @@ data "aws_route_table" "frontend_route_tables" {
   }
 }
 
-resource "aws_route" "frontend_wireguard_gateway_route" {
+resource "aws_route" "frontend_wireguard_gateway_route_public" {
   provider               = aws.region_02
-  depends_on             = [data.aws_route_table.frontend_route_tables, module.frontend_wireguard]
-  route_table_id         = data.aws_route_table.frontend_route_tables.id
+  depends_on             = [data.aws_route_table.frontend_public_route_table, module.frontend_wireguard]
+  route_table_id         = data.aws_route_table.frontend_public_route_table.id
   destination_cidr_block = "10.10.150.0/24"
   network_interface_id   = module.frontend_wireguard.primary_network_interface_id[0]
 }
