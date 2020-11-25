@@ -8,6 +8,7 @@ data "template_file" "backend_wireguard_user_data" {
   vars = {
     WG_BE_SERVER_PVK = var.WG_BE_SERVER_PVK
     WG_FE_SERVER_PBK = var.WG_FE_SERVER_PBK
+    WG_ADMIN_PBK     = var.WG_ADMIN_PBK
   }
 }
 
