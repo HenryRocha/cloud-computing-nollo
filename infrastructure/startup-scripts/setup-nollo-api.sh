@@ -9,6 +9,9 @@ sudo chmod +x /usr/local/bin/docker-compose
 # Install Git
 sudo apt install git -y
 
+# Change to home directory
+cd /home/ubuntu
+
 # Clone the repo
 git clone https://github.com/HenryRocha/cloud-computing-nollo.git
 cd cloud-computing-nollo/nollo-api/
