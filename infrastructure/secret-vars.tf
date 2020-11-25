@@ -51,3 +51,8 @@ variable "WG_BE_SERVER_IP" {
   type    = string
   default = "placeholder"
 }
+
+variable "WG_ADMIN_PBK" {
+  type    = string
+  default = "placeholder"
+}
