@@ -223,7 +223,7 @@ module "backend_restAPI_elb" {
 
   subnets         = module.backend_vpc.public_subnets
   security_groups = [module.backend_restAPI_sg.this_security_group_id]
-  internal        = false
+  internal        = true
 
   listener = [
     {
