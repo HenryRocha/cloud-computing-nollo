@@ -36,28 +36,28 @@ module "backend_restAPI_sg" {
       to_port     = 22
       protocol    = "tcp"
       description = "Allow SSH"
-      cidr_blocks = "0.0.0.0/0"
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
     {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
       description = "Allow HTTP"
-      cidr_blocks = "0.0.0.0/0"
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
     {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
       description = "Allow HTTPS"
-      cidr_blocks = "0.0.0.0/0"
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
     {
       from_port   = 8
       to_port     = 0
       protocol    = "icmp"
       description = "Allow Ping from anywhere"
-      cidr_blocks = "0.0.0.0/0"
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
   ]
 
