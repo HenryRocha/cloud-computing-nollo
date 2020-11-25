@@ -40,7 +40,10 @@ func setupRoutes(app *fiber.App) {
 
 func main() {
 	app := fiber.New()
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders:  "Origin, Content-Type, Accept",
+	}))
 	app.Use(logger.New())
 	initDatabaseConnection()
 	setupRoutes(app)
