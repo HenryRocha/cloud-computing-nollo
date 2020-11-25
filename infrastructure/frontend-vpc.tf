@@ -87,6 +87,6 @@ resource "aws_route" "frontend_wireguard_gateway_route_public" {
   provider               = aws.region_02
   depends_on             = [data.aws_route_table.frontend_public_route_table, module.frontend_wireguard]
   route_table_id         = data.aws_route_table.frontend_public_route_table.id
-  destination_cidr_block = "10.10.150.0/24"
+  destination_cidr_block = "10.0.0.0/16"
   network_interface_id   = module.frontend_wireguard.primary_network_interface_id[0]
 }
