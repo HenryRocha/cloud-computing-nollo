@@ -73,7 +73,7 @@ module "backend_vpc" {
 # Add a new route to the private subnet route table. It should point to the
 # wireguard instance. This is needed to provide a end-to-end IP location.
 #===================================================================================
-data "aws_route_table" "backend_route_tables" {
+data "aws_route_table" "backend_private_route_table" {
   provider   = aws.region_01
   depends_on = [module.backend_vpc]
   vpc_id     = module.backend_vpc.vpc_id
@@ -84,10 +84,29 @@ data "aws_route_table" "backend_route_tables" {
   }
 }
 
-resource "aws_route" "wireguard_gateway_route" {
+resource "aws_route" "backend_wireguard_gateway_route_private" {
   provider               = aws.region_01
-  depends_on             = [data.aws_route_table.backend_route_tables, module.backend_wireguard]
-  route_table_id         = data.aws_route_table.backend_route_tables.id
+  depends_on             = [data.aws_route_table.backend_private_route_table, module.backend_wireguard]
+  route_table_id         = data.aws_route_table.backend_private_route_table.id
+  destination_cidr_block = "10.10.150.0/24"
+  network_interface_id   = module.backend_wireguard.primary_network_interface_id[0]
+}
+
+data "aws_route_table" "backend_public_route_table" {
+  provider   = aws.region_01
+  depends_on = [module.backend_vpc]
+  vpc_id     = module.backend_vpc.vpc_id
+
+  filter {
+    name   = "tag:Type"
+    values = ["public"]
+  }
+}
+
+resource "aws_route" "backend_wireguard_gateway_route_public" {
+  provider               = aws.region_01
+  depends_on             = [data.aws_route_table.backend_public_route_table, module.backend_wireguard]
+  route_table_id         = data.aws_route_table.backend_public_route_table.id
   destination_cidr_block = "10.10.150.0/24"
   network_interface_id   = module.backend_wireguard.primary_network_interface_id[0]
 }
