@@ -38,34 +38,30 @@ module "backend_database_sg" {
       to_port     = 0
       protocol    = "icmp"
       description = "Allow Ping from within VPC"
-      cidr_blocks = "10.0.0.0/16"
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
-  ]
-
-  computed_ingress_with_cidr_blocks = [
     {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
       description = "Allow SSH from public subnets"
-      cidr_blocks = join(",", module.backend_vpc.public_subnets_cidr_blocks)
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
     {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
       description = "Allow HTTP from public subnets"
-      cidr_blocks = join(",", module.backend_vpc.public_subnets_cidr_blocks)
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
     {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
       description = "Allow HTTPS from public subnets"
-      cidr_blocks = join(",", module.backend_vpc.public_subnets_cidr_blocks)
+      cidr_blocks = "10.0.0.0/16,10.10.150.0/24,192.168.15.0/24"
     },
   ]
-  number_of_computed_ingress_with_cidr_blocks = 3
 
   egress_with_cidr_blocks = [
     {
