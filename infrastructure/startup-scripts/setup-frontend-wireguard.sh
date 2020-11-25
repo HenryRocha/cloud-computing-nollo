@@ -21,7 +21,7 @@ PrivateKey = ${WG_FE_SERVER_PVK}
 
 [Peer]
 PublicKey = ${WG_BE_SERVER_PBK}
-AllowedIPs = 10.10.150.20/32, 10.0.1.0/24, 10.0.101.0/24, 10.0.102.0/24, 10.0.103.0/24
+AllowedIPs = 10.10.150.20/32, 10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24, 10.0.101.0/24, 10.0.102.0/24, 10.0.103.0/24
 Endpoint = ${WG_BE_SERVER_IP}:51820
 PersistentKeepalive = 15
 EOF
