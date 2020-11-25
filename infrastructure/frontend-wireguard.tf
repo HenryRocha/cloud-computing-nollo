@@ -106,6 +106,7 @@ module "frontend_wireguard" {
   vpc_security_group_ids      = [module.frontend_wireguard_sg.this_security_group_id]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_02.key_name
+  source_dest_check           = false
 
   user_data = data.template_file.frontend_wireguard_user_data.rendered
 
