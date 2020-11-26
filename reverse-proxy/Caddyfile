@@ -1,0 +1,15 @@
+http://:80 {
+    # Any path that matches /api/* will be sent to another instance.
+    # More specifically Nollo API's internal load balancer.
+    @api path /api/*
+    route @api {
+        reverse_proxy NOLLO_API_LB_DNS
+    }
+
+    # Any path that matches / or /* will be sent to port 8080, locally.
+    # Another container running Nollo Site should be listening on that port.
+    @frontend path / /*
+    route @frontend {
+        reverse_proxy http://localhost:8080
+    }
+}
