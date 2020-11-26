@@ -2,8 +2,7 @@
 # Template file and User Data for Nollo API
 #===================================================================================
 data "template_file" "nollo_site_user_data" {
-  depends_on = [module.backend_restAPI_elb, module.frontend_nolloSite_elb]
-  template   = file("./startup-scripts/setup-nollo-site.sh")
+  template = file("./startup-scripts/setup-nollo-site.sh")
   vars = {
     NOLLO_API_LB_DNS  = module.backend_restAPI_elb.this_elb_dns_name
     NOLLO_SITE_LB_DNS = module.frontend_nolloSite_elb.this_elb_dns_name
