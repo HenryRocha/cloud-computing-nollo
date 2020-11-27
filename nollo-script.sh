@@ -201,14 +201,18 @@ fi
 # Call function to validate Terraform variables file
 validate_tf_vars_file $TF_AUTO_VARS_PATH
 
-# Validate Terraform variables.
+# Init any new modules
+cd ./infrastructure
+terraform init
+
+# Destroy old state
 printf "Destroying previous Terraform state...."
 
-cd ./infrastructure
 terraform destroy --auto-approve
 
 printf "\nDone\n"
 
+# Create new state
 printf "Creating new infrastructure...."
 
 terraform apply --auto-approve
