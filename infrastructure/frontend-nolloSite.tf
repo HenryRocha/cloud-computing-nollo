@@ -4,7 +4,7 @@
 data "template_file" "nollo_site_user_data" {
   template = file("./startup-scripts/setup-nollo-site.sh")
   vars = {
-    NOLLO_API_LB_DNS  = module.backend_restAPI_elb.this_elb_dns_name
+    NOLLO_API_LB_DNS  = module.backend_nolloAPI_elb.this_elb_dns_name
     NOLLO_SITE_LB_DNS = module.frontend_nolloSite_elb.this_elb_dns_name
   }
 }
@@ -72,7 +72,7 @@ module "frontend_nolloSite_sg" {
 #===================================================================================
 resource "aws_launch_configuration" "frontend_nolloSite_lc" {
   provider   = aws.region_02
-  depends_on = [module.frontend_nolloSite_sg, data.aws_ami.ubuntu18_region_02, module.backend_restAPI_elb]
+  depends_on = [module.frontend_nolloSite_sg, data.aws_ami.ubuntu18_region_02, module.backend_nolloAPI_elb]
 
   name_prefix     = "frontend-nolloSite-lc-"
   image_id        = data.aws_ami.ubuntu18_region_02.id

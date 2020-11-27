@@ -19,15 +19,15 @@ output "nollo_api_script" {
 # The default security group for Nollo API. This is the security group used by
 # every instance created by the autoscaling group.
 #===================================================================================
-module "backend_restAPI_sg" {
+module "backend_nolloAPI_sg" {
   source = "terraform-aws-modules/security-group/aws"
   providers = {
     aws = aws.region_01
   }
   depends_on = [module.backend_vpc]
 
-  name        = "backend-restAPI-sg"
-  description = "Default restAPI security group."
+  name        = "backend-nolloAPI-sg"
+  description = "Default nolloAPI security group."
   vpc_id      = module.backend_vpc.vpc_id
 
   ingress_with_cidr_blocks = [
@@ -73,7 +73,7 @@ module "backend_restAPI_sg" {
 
   tags = {
     Owner = "henryrocha"
-    Name  = "backend-restAPI-sg-component"
+    Name  = "backend-nolloAPI-sg-component"
   }
 }
 
@@ -81,14 +81,14 @@ module "backend_restAPI_sg" {
 # Nollo API launch configuration. This is how the instances inside the autoscaling
 # group will be based on.
 #===================================================================================
-resource "aws_launch_configuration" "backend_restAPI_lc" {
+resource "aws_launch_configuration" "backend_nolloAPI_lc" {
   provider   = aws.region_01
-  depends_on = [module.backend_restAPI_sg, data.aws_ami.ubuntu18_region_01]
+  depends_on = [module.backend_nolloAPI_sg, data.aws_ami.ubuntu18_region_01]
 
-  name_prefix                 = "backend-restAPI-lc-"
+  name_prefix                 = "backend-nolloAPI-lc-"
   image_id                    = data.aws_ami.ubuntu18_region_01.id
   instance_type               = "t2.micro"
-  security_groups             = [module.backend_restAPI_sg.this_security_group_id]
+  security_groups             = [module.backend_nolloAPI_sg.this_security_group_id]
   key_name                    = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_01.key_name
   associate_public_ip_address = false
 
@@ -102,25 +102,25 @@ resource "aws_launch_configuration" "backend_restAPI_lc" {
 #===================================================================================
 # Nollo API autoscaling group.
 #===================================================================================
-module "backend_restAPI_asg" {
+module "backend_nolloAPI_asg" {
   source = "terraform-aws-modules/autoscaling/aws"
   providers = {
     aws = aws.region_01
   }
-  depends_on = [module.backend_vpc, module.backend_restAPI_sg, module.backend_restAPI_elb, data.aws_ami.ubuntu18_region_01]
+  depends_on = [module.backend_vpc, module.backend_nolloAPI_sg, module.backend_nolloAPI_elb, data.aws_ami.ubuntu18_region_01]
 
-  name = "backend-restAPI-asg"
+  name = "backend-nolloAPI-asg"
 
-  launch_configuration         = aws_launch_configuration.backend_restAPI_lc.name
+  launch_configuration         = aws_launch_configuration.backend_nolloAPI_lc.name
   create_lc                    = false
   recreate_asg_when_lc_changes = true
   associate_public_ip_address  = false
 
-  security_groups = [module.backend_restAPI_sg.this_security_group_id]
-  load_balancers  = [module.backend_restAPI_elb.this_elb_id]
+  security_groups = [module.backend_nolloAPI_sg.this_security_group_id]
+  load_balancers  = [module.backend_nolloAPI_elb.this_elb_id]
 
   # Auto scaling group
-  asg_name                  = "backend-restAPI-asg"
+  asg_name                  = "backend-nolloAPI-asg"
   vpc_zone_identifier       = module.backend_vpc.public_subnets
   health_check_type         = "EC2"
   min_size                  = 1
@@ -136,7 +136,7 @@ module "backend_restAPI_asg" {
     },
     {
       key                 = "Name"
-      value               = "backend-restAPI-asg-component"
+      value               = "backend-nolloAPI-asg-component"
       propagate_at_launch = true
     },
   ]
@@ -145,23 +145,23 @@ module "backend_restAPI_asg" {
 #===================================================================================
 # Scaling Policies for the autoscaling group.
 #===================================================================================
-resource "aws_autoscaling_policy" "restAPI_up" {
+resource "aws_autoscaling_policy" "nolloAPI_up" {
   # Scale up settings. This policy creates an addional instance.
   provider               = aws.region_01
-  depends_on             = [module.backend_restAPI_asg]
-  name                   = "restAPI_up"
+  depends_on             = [module.backend_nolloAPI_asg]
+  name                   = "nolloAPI_up"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 120
-  autoscaling_group_name = module.backend_restAPI_asg.this_autoscaling_group_name
+  autoscaling_group_name = module.backend_nolloAPI_asg.this_autoscaling_group_name
 }
 
-resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_up" {
+resource "aws_cloudwatch_metric_alarm" "nolloAPI_cpu_alarm_up" {
   # Cloudwatch Alarm. Sets off an alarm when an instance's CPU stays at or above
   # 50% load for at least 120 seconds.
   provider            = aws.region_01
-  depends_on          = [module.backend_restAPI_asg, aws_autoscaling_policy.restAPI_up]
-  alarm_name          = "restAPI_cpu_alarm_up"
+  depends_on          = [module.backend_nolloAPI_asg, aws_autoscaling_policy.nolloAPI_up]
+  alarm_name          = "nolloAPI_cpu_alarm_up"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -171,30 +171,30 @@ resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_up" {
   threshold           = "50"
 
   dimensions = {
-    AutoScalingGroupName = module.backend_restAPI_asg.this_autoscaling_group_name
+    AutoScalingGroupName = module.backend_nolloAPI_asg.this_autoscaling_group_name
   }
 
   alarm_description = "This metric monitor EC2 instance CPU utilization"
-  alarm_actions     = [aws_autoscaling_policy.restAPI_up.arn]
+  alarm_actions     = [aws_autoscaling_policy.nolloAPI_up.arn]
 }
 
-resource "aws_autoscaling_policy" "restAPI_down" {
+resource "aws_autoscaling_policy" "nolloAPI_down" {
   # Scale down settings. This policy deletes one instance.
   provider               = aws.region_01
-  depends_on             = [module.backend_restAPI_asg]
-  name                   = "restAPI_down"
+  depends_on             = [module.backend_nolloAPI_asg]
+  name                   = "nolloAPI_down"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 120
-  autoscaling_group_name = module.backend_restAPI_asg.this_autoscaling_group_name
+  autoscaling_group_name = module.backend_nolloAPI_asg.this_autoscaling_group_name
 }
 
-resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_down" {
+resource "aws_cloudwatch_metric_alarm" "nolloAPI_cpu_alarm_down" {
   # Cloudwatch Alarm. Sets off an alarm when an instance's CPU stays below 10%
   # load for at least 120 seconds.
   provider            = aws.region_01
-  depends_on          = [module.backend_restAPI_asg, aws_autoscaling_policy.restAPI_down]
-  alarm_name          = "restAPI_cpu_alarm_down"
+  depends_on          = [module.backend_nolloAPI_asg, aws_autoscaling_policy.nolloAPI_down]
+  alarm_name          = "nolloAPI_cpu_alarm_down"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -204,27 +204,27 @@ resource "aws_cloudwatch_metric_alarm" "restAPI_cpu_alarm_down" {
   threshold           = "10"
 
   dimensions = {
-    AutoScalingGroupName = module.backend_restAPI_asg.this_autoscaling_group_name
+    AutoScalingGroupName = module.backend_nolloAPI_asg.this_autoscaling_group_name
   }
 
   alarm_description = "This metric monitor EC2 instance CPU utilization"
-  alarm_actions     = [aws_autoscaling_policy.restAPI_down.arn]
+  alarm_actions     = [aws_autoscaling_policy.nolloAPI_down.arn]
 }
 
 #===================================================================================
 # Elastic Load Balancer
 #===================================================================================
-module "backend_restAPI_elb" {
+module "backend_nolloAPI_elb" {
   source = "terraform-aws-modules/elb/aws"
   providers = {
     aws = aws.region_01
   }
-  depends_on = [module.backend_vpc, module.backend_restAPI_sg]
+  depends_on = [module.backend_vpc, module.backend_nolloAPI_sg]
 
-  name = "backend-restAPI-elb"
+  name = "backend-nolloAPI-elb"
 
   subnets         = module.backend_vpc.public_subnets
-  security_groups = [module.backend_restAPI_sg.this_security_group_id]
+  security_groups = [module.backend_nolloAPI_sg.this_security_group_id]
   internal        = true
 
   listener = [
@@ -246,10 +246,10 @@ module "backend_restAPI_elb" {
 
   tags = {
     Owner = "henryrocha"
-    Name  = "backend-restAPI-elb"
+    Name  = "backend-nolloAPI-elb"
   }
 }
 
-output "restAPI_elb_dns_name" {
-  value = module.backend_restAPI_elb.this_elb_dns_name
+output "nolloAPI_elb_dns_name" {
+  value = module.backend_nolloAPI_elb.this_elb_dns_name
 }
