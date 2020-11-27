@@ -85,11 +85,12 @@ resource "aws_launch_configuration" "backend_restAPI_lc" {
   provider   = aws.region_01
   depends_on = [module.backend_restAPI_sg, data.aws_ami.ubuntu18_region_01]
 
-  name_prefix     = "backend-restAPI-lc-"
-  image_id        = data.aws_ami.ubuntu18_region_01.id
-  instance_type   = "t2.micro"
-  security_groups = [module.backend_restAPI_sg.this_security_group_id]
-  key_name        = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_01.key_name
+  name_prefix                 = "backend-restAPI-lc-"
+  image_id                    = data.aws_ami.ubuntu18_region_01.id
+  instance_type               = "t2.micro"
+  security_groups             = [module.backend_restAPI_sg.this_security_group_id]
+  key_name                    = aws_key_pair.henryrocha_legionY740_manjaro_kp_region_01.key_name
+  associate_public_ip_address = false
 
   user_data = data.template_file.nollo_api_user_data.rendered
 
@@ -113,6 +114,7 @@ module "backend_restAPI_asg" {
   launch_configuration         = aws_launch_configuration.backend_restAPI_lc.name
   create_lc                    = false
   recreate_asg_when_lc_changes = true
+  associate_public_ip_address  = false
 
   security_groups = [module.backend_restAPI_sg.this_security_group_id]
   load_balancers  = [module.backend_restAPI_elb.this_elb_id]
