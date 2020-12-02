@@ -1,13 +1,31 @@
 <script>
     import {
-        isDeletingTodo,
         deleteTodoError,
-        deleteTodo,
+        deleteTodo as dispatchDeleteTodo,
     } from "./../store/todos";
+    import { alert } from "./../store/alert.js";
 
     export let title = "Placeholder Title";
     export let description = "Placeholder Description";
     export let id = "Placeholder ID";
+
+    async function deleteTodo() {
+        await dispatchDeleteTodo(id);
+
+        if ($deleteTodoError) {
+            $alert = {
+                success: false,
+                title: "Could not create ToDo",
+                description: $deleteTodoError.error,
+            };
+        } else {
+            $alert = {
+                success: true,
+                title: `ToDo '${title}' deleted.`,
+                description: "",
+            };
+        }
+    }
 </script>
 
 <style>
