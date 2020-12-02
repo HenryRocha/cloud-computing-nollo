@@ -53,7 +53,8 @@
 
 				<button
 					class="w-full p-2 mt-4 text-lg bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl text-white"
-					on:click={() => createTodo(newTodo)}>
+					on:click={() => createTodo(newTodo)}
+					on:click={() => (newTodo = {})}>
 					Create
 				</button>
 
