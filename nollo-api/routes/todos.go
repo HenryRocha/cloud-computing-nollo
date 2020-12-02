@@ -57,7 +57,9 @@ func NewTodo(c *fiber.Ctx) error {
 	db.Table("todos").Create(&newTodo)
 
 	return c.JSON(fiber.Map{
-		"id": newTodo.ID,
+		"title":       newTodo.Title,
+		"description": newTodo.Description,
+		"id":          newTodo.ID,
 	})
 }
 
